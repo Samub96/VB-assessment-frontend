@@ -1,0 +1,28 @@
+{
+  "info": {
+    "name": "VB Assessment API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "http://localhost:8080/api/v1/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@local\",\n  \"password\": \"Admin123!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Archive rejected orders",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://localhost:8080/api/v1/orders/archive-rejected"
+      }
+    }
+  ]
+}
