@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: vb-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: backpayments
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - fullstack_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ../VB-assessment-backend
+      dockerfile: Dockerfile
+    container_name: vb-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/backpayments
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_DB_PLATFORM: postgresql
+      APP_SEED_ENABLED: "true"
+      APP_LOG_LEVEL_ROOT: INFO
+      APP_LOG_LEVEL_APP: DEBUG
+      APP_LOG_LEVEL_SECURITY: DEBUG
+      APP_LOG_LEVEL_HIBERNATE_SQL: DEBUG
+      APP_LOG_LEVEL_HIBERNATE_BIND: TRACE
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - fullstack_network
+
+  frontend:
+    image: vb-assessment-frontend:latest
+    container_name: vb-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
+    networks:
+      - fullstack_network
+    environment:
+      - VITE_REACT_APP_API_URL=http://app:8080
+
+volumes:
+  db_data:
+
+networks:
+  fullstack_network:
+    name: fullstack_network
+    driver: bridge
